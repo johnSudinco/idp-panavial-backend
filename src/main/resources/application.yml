@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: idp-panavial-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5433/idp-panavial
+    username: admin
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+      host: smtp.gmail.com
+      port: 587
+      username: johnantoniio@gmail.com
+      password: hefspiogshzvgypk
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
+
+server:
+  port: 9090
+
+jwt:
+  expiration: 9000000
+  issuer: idp-panavial-backend
+  secret: 3f8d9a7c2e6b4f1a9d8c7e5f3a2b1c0d
+
+
