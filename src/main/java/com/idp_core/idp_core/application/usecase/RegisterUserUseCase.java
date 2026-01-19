@@ -1,6 +1,8 @@
 package com.idp_core.idp_core.application.usecase;
 
+import com.idp_core.idp_core.domain.model.Role;
 import com.idp_core.idp_core.domain.model.User;
+import com.idp_core.idp_core.domain.port.repository.RoleRepositoryPort;
 import com.idp_core.idp_core.domain.port.repository.UserRepositoryPort;
 import com.idp_core.idp_core.application.dto.RegisterRequest;
 import com.idp_core.idp_core.application.dto.RegisterResponse;
@@ -11,11 +13,16 @@ import org.springframework.stereotype.Service;
 public class RegisterUserUseCase {
 
     private final UserRepositoryPort userRepository;
+    private final RoleRepositoryPort roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserUseCase(UserRepositoryPort userRepository,
-                               PasswordEncoder passwordEncoder) {
+    public RegisterUserUseCase(
+            UserRepositoryPort userRepository,
+            RoleRepositoryPort roleRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -41,6 +48,12 @@ public class RegisterUserUseCase {
                 request.getPhone()
         );
 
+        //  ASIGNACIÓN AUTOMÁTICA DE ROL
+        Role defaultRole = roleRepository.findByName("USER")
+                .orElseThrow(() ->
+                        new IllegalStateException("Rol USER no existe"));
+
+        user.addRole(defaultRole);
         User savedUser = userRepository.save(user);
 
         return new RegisterResponse(

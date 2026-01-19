@@ -4,12 +4,14 @@ import com.idp_core.idp_core.application.dto.AssignPermissionRequest;
 import com.idp_core.idp_core.application.usecase.RolePermissionUseCase;
 import com.idp_core.idp_core.web.common.ApiResponse;
 import com.idp_core.idp_core.web.common.Auditable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/roles/permissions")
+@Profile("admin")
 public class RolePermissionController {
 
     private final RolePermissionUseCase rolePermissionUseCase;

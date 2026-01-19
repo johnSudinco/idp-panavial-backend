@@ -8,6 +8,7 @@ import com.idp_core.idp_core.domain.model.AuditLog;
 import com.idp_core.idp_core.web.common.ApiResponse;
 import com.idp_core.idp_core.web.common.Auditable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequestMapping("/api/roles")
+@Profile("admin")
 public class RoleController {
 
     private final RoleUseCase roleService;

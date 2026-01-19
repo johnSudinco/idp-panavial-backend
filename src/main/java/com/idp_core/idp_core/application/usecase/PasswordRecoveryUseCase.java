@@ -31,54 +31,67 @@ public class PasswordRecoveryUseCase {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /* ======================
+       FORGOT PASSWORD
+       ====================== */
+    public void generateRecoveryToken(String email) {
 
-    // GENERAR TOKEN
-    public String generateRecoveryToken(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        userRepository.findByEmail(email).ifPresent(user -> {
 
-        String token = UUID.randomUUID().toString();
+            //  Generar token plano
+            String rawToken = UUID.randomUUID().toString();
 
-        PasswordResetToken resetToken = new PasswordResetToken(
-                user.getId(),
-                token,
-                LocalDateTime.now().plusMinutes(15)
-        );
+            //  Hashear token
+            String tokenHash = passwordEncoder.encode(rawToken);
 
-        tokenRepository.save(resetToken);
+            //  Crear token de dominio
+            PasswordResetToken resetToken = new PasswordResetToken(
+                    user.getId(),
+                    tokenHash,
+                    LocalDateTime.now().plusMinutes(15)
+            );
 
-        String resetLink = "https://idp-panavial-backend.com/auth/reset-password?token=" + token;
-        emailServicePort.sendPasswordResetEmail(email, resetLink);
+            tokenRepository.save(resetToken);
 
-        return token;
+            // Enviar link con token PLANO
+            String resetLink =
+                    "https://idp-panavial-backend.com/auth/reset-password?token=" + rawToken;
+
+            emailServicePort.sendPasswordResetEmail(user.getEmail(), resetLink);
+        });
+
+        //  Si el email no existe → NO pasa nada
     }
 
-    public void resetPassword(String token, String newPassword) {
+    /* ======================
+       RESET PASSWORD
+       ====================== */
+    public void resetPassword(String rawToken, String newPassword) {
 
-        PasswordResetToken resetToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Token inválido"));
+        PasswordResetToken resetToken =
+                tokenRepository.findActiveToken()
+                        .orElseThrow(() -> new RuntimeException("Token inválido"));
 
-        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (resetToken.isExpired()) {
             throw new RuntimeException("Token expirado");
         }
 
-        if (resetToken.getUsedAt() != null) {
+        if (resetToken.isUsed()) {
             throw new RuntimeException("Token ya utilizado");
+        }
+
+        // COMPARACIÓN SEGURA
+        if (!passwordEncoder.matches(rawToken, resetToken.getTokenHash())) {
+            throw new RuntimeException("Token inválido");
         }
 
         User user = userRepository.findById(resetToken.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        String encodedPassword = passwordEncoder.encode(newPassword);
-
-        //  DOMINIO
-        user.changePassword(encodedPassword);
-
+        user.changePassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        resetToken.setUsedAt(LocalDateTime.now());
+        resetToken.markAsUsed();
         tokenRepository.save(resetToken);
     }
 }
-
-

@@ -85,14 +85,10 @@ public class AuthController {
     public ResponseEntity<ApiResponse<String>> logout(
             HttpServletRequest request,
             @RequestBody LogoutRequest logoutRequest) {
-        // 1️ Extraer token y usuario
         String accessToken = extractToken(request);
         Long userId = jwtService.getUserIdFromToken(accessToken);
-        // 2️ Terminar sesión en DB
         sessionService.terminateSession(userId, accessToken);
-        // 3️ Revocar refresh token
         refreshTokenUseCase.revokeByRefreshToken(logoutRequest.getRefreshToken());
-        // 4 Responder al cliente
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "OK", "Sesión cerrada correctamente")
         );

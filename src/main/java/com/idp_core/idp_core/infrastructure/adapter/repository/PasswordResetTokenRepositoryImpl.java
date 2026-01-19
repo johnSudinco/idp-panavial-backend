@@ -6,14 +6,18 @@ import com.idp_core.idp_core.domain.port.repository.PasswordResetTokenRepository
 import com.idp_core.idp_core.infrastructure.adapter.entities.PasswordResetTokenEntity;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepositoryPort {
+public class PasswordResetTokenRepositoryImpl
+        implements PasswordResetTokenRepositoryPort {
 
     private final JpaPasswordResetTokenRepository jpaRepository;
 
-    public PasswordResetTokenRepositoryImpl(JpaPasswordResetTokenRepository jpaRepository) {
+    public PasswordResetTokenRepositoryImpl(
+            JpaPasswordResetTokenRepository jpaRepository
+    ) {
         this.jpaRepository = jpaRepository;
     }
 
@@ -24,30 +28,51 @@ public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepos
     }
 
     @Override
-    public Optional<PasswordResetToken> findByToken(String token) {
-        return jpaRepository.findByToken(token).map(this::toDomain);
+    public Optional<PasswordResetToken> findActiveToken() {
+        return jpaRepository
+                .findFirstByUsedAtIsNullAndExpiresAtAfter(LocalDateTime.now())
+                .map(this::toDomain);
     }
 
-    // --- Mappers ---
+    @Override
+    public void invalidateTokensByUserId(Long userId) {
+        jpaRepository.deleteByUserId(userId);
+    }
+
+    /* ======================
+       MAPPERS
+       ====================== */
+
     private PasswordResetTokenEntity toEntity(PasswordResetToken token) {
+
         PasswordResetTokenEntity entity = new PasswordResetTokenEntity();
+
         entity.setId(token.getId());
         entity.setUserId(token.getUserId());
-        entity.setToken(token.getToken());
+        entity.setTokenHash(token.getTokenHash());
         entity.setExpiresAt(token.getExpiresAt());
         entity.setUsedAt(token.getUsedAt());
+
         return entity;
     }
 
     private PasswordResetToken toDomain(PasswordResetTokenEntity entity) {
+
         PasswordResetToken token = new PasswordResetToken(
                 entity.getUserId(),
-                entity.getToken(),
+                entity.getTokenHash(),
                 entity.getExpiresAt()
         );
+
         token.setId(entity.getId());
-        token.setUsedAt(entity.getUsedAt());
+
+        // restaurar estado
+        if (entity.getUsedAt() != null) {
+            token.restoreUsedAt(entity.getUsedAt());
+        }
+
         return token;
     }
 }
+
 

@@ -27,16 +27,16 @@ public class UserController {
         this.getUserUseCase = getUserUseCase;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('CREATE')")
-    public ResponseEntity<UserResponse> create(
-            @RequestBody CreateUserRequest request
-    ) {
-        User user = createUserUseCase.execute(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(UserResponse.from(user));
-    }
+//    @PostMapping
+//    @PreAuthorize("hasAuthority('CREATE')")
+//    public ResponseEntity<UserResponse> create(
+//            @RequestBody CreateUserRequest request
+//    ) {
+//        User user = createUserUseCase.execute(request);
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(UserResponse.from(user));
+//    }
 
 
     @GetMapping("/{id}")
@@ -51,7 +51,6 @@ public class UserController {
 
 
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('READ')")
     @Auditable(action = "GET_USERNAME", targetType = "USER")
     public ResponseEntity<UserResponse> getUserByUsername(
             @RequestParam String username

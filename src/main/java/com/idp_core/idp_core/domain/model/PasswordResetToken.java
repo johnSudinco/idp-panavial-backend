@@ -1,22 +1,28 @@
 package com.idp_core.idp_core.domain.model;
 
-
 import java.time.LocalDateTime;
 
-
 public class PasswordResetToken {
+
     private Long id;
     private Long userId;
-    private String token;
+    private String tokenHash;
     private LocalDateTime expiresAt;
     private LocalDateTime usedAt;
 
-    public PasswordResetToken(Long userId, String token, LocalDateTime expiresAt) {
+    public PasswordResetToken(
+            Long userId,
+            String tokenHash,
+            LocalDateTime expiresAt
+    ) {
         this.userId = userId;
-        this.token = token;
+        this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
     }
 
+    /* ======================
+       GETTERS
+       ====================== */
 
     public Long getId() {
         return id;
@@ -26,8 +32,8 @@ public class PasswordResetToken {
         return userId;
     }
 
-    public String getToken() {
-        return token;
+    public String getTokenHash() {
+        return tokenHash;
     }
 
     public LocalDateTime getExpiresAt() {
@@ -38,22 +44,31 @@ public class PasswordResetToken {
         return usedAt;
     }
 
-    public void setId(Long id) {this.id = id;    }
+    /* ======================
+       DOMINIO
+       ====================== */
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public boolean isExpired() {
+        return expiresAt.isBefore(LocalDateTime.now());
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public boolean isUsed() {
+        return usedAt != null;
     }
 
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
+    public void markAsUsed() {
+        this.usedAt = LocalDateTime.now();
     }
 
-    public void setUsedAt(LocalDateTime usedAt) {
+    /* ======================
+       SETTERS CONTROLADOS
+       ====================== */
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void restoreUsedAt(LocalDateTime usedAt) {
         this.usedAt = usedAt;
     }
-}
 
+}

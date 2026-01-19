@@ -52,6 +52,10 @@ public class LoginUserUseCase {
 
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+        System.out.println("RAW: " + request.getPassword());
+        System.out.println("HASH: " + user.getPasswordHash());
+        System.out.println("MATCHES: " +
+                passwordEncoder.matches(request.getPassword(), user.getPasswordHash()));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Credenciales inválidas");
@@ -68,7 +72,7 @@ public class LoginUserUseCase {
 
             return new AuthResponse(null, null, "2FA_REQUIRED");
         }
-
+        System.out.println("PasswordHash: " + user.getPasswordHash());
         return generateTokens(user);
     }
 

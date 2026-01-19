@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface PasswordResetTokenRepositoryPort {
     void save(PasswordResetToken token);
-    Optional<PasswordResetToken> findByToken(String token);
+    Optional<PasswordResetToken> findActiveToken();
+    void invalidateTokensByUserId(Long userId);
 }
