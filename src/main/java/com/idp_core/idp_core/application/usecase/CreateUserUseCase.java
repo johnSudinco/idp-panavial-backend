@@ -28,10 +28,10 @@ public class CreateUserUseCase {
                     throw new IllegalArgumentException("Username ya existe");
                 });
 
-        repository.findByEmail(request.email())
-                .ifPresent(u -> {
-                    throw new IllegalArgumentException("Email ya existe");
-                });
+        // repository.findByEmail(request.email())
+        //         .ifPresent(u -> {
+        //             throw new IllegalArgumentException("Email ya existe");
+        //         });
 
         User user = new User(
                 request.username(),
