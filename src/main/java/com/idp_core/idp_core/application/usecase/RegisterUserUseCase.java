@@ -30,9 +30,9 @@ public class RegisterUserUseCase {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("Username ya Existe");
         }
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email ya Existe");
-        }
+        // if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        //     throw new RuntimeException("Email ya Existe");
+        // }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
