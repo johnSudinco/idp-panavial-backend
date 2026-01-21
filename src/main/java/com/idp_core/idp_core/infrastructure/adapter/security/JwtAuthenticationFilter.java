@@ -73,7 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Claims claims = jwtService.getClaims(token);
             String userId = claims.getSubject();
-
+            String identification = claims.get("identification", String.class);
+            
             Object permissionsClaim = claims.get("permissions");
 
             List<GrantedAuthority> authorities =

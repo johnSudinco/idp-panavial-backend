@@ -36,6 +36,7 @@ public class JwtServicePort {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
+                .claim("identification", user.getIdentification())
                 .claim("roles", roleNames)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(new Date())
@@ -51,6 +52,7 @@ public class JwtServicePort {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
+                .claim("identification", user.getIdentification())
                 .claim("roles", roleNames)
                 .claim("permissions", permissions)
                 .setIssuer(jwtProperties.getIssuer())
@@ -71,6 +73,7 @@ public class JwtServicePort {
                 .claim("roles", roleNames)
                 .claim("permissions", permissions)
                 .claim("correlationId", correlationId)
+                .claim("identification", user.getIdentification())
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
